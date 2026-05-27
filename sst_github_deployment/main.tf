@@ -294,19 +294,19 @@ module "cloudflare_deploy_token" {
 resource "github_actions_secret" "cloudflare_api_token" {
   repository      = var.github_repository.name
   secret_name     = "CLOUDFLARE_API_TOKEN"
-  plaintext_value = module.cloudflare_deploy_token.cloudflare_api_token
+  value = module.cloudflare_deploy_token.cloudflare_api_token
 }
 
 resource "github_actions_secret" "cloudflare_account_id" {
   repository      = var.github_repository.name
   secret_name     = "CLOUDFLARE_ACCOUNT_ID"
-  plaintext_value = module.cloudflare_deploy_token.cloudflare_account_id
+  value = module.cloudflare_deploy_token.cloudflare_account_id
 }
 
 resource "github_actions_secret" "aws_oidc_role" {
   repository      = var.github_repository.name
   secret_name     = "AWS_OIDC_ROLE"
-  plaintext_value = aws_iam_role.deploy.arn
+  value = aws_iam_role.deploy.arn
 }
 
 output "cloudflare_api_token" {
