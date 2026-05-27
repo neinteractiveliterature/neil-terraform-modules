@@ -244,7 +244,14 @@ resource "aws_iam_role_policy" "deploy" {
         "Sid" : "ManageCloudfrontDistributions",
         "Effect" : "Allow",
         "Action" : [
-          "cloudfront:CreateInvalidation"
+          "cloudfront:CreateDistribution",
+          "cloudfront:GetDistribution",
+          "cloudfront:GetDistributionConfig",
+          "cloudfront:UpdateDistribution",
+          "cloudfront:DeleteDistribution",
+          "cloudfront:CreateInvalidation",
+          "cloudfront:TagResource",
+          "cloudfront:ListTagsForResource"
         ],
         "Resource" : [
           "*"
