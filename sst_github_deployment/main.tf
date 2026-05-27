@@ -10,7 +10,18 @@ terraform {
 }
 
 variable "app_name" {
-  type = string
+  type        = string
+  description = "Application name. Used to name IAM resources (groups, users, roles). Deprecated for IAM resource scoping — use resource_name_pattern instead."
+}
+
+variable "resource_name_pattern" {
+  type        = string
+  default     = null
+  description = "Glob pattern used to scope IAM policy resource ARNs (e.g. \"myapp*-production-*\"). If not set, defaults to \"$${app_name}-production-*\". Use this when SST truncates the app name in resource names."
+}
+
+locals {
+  resource_name_pattern = var.resource_name_pattern != null ? var.resource_name_pattern : "${var.app_name}-production-*"
 }
 
 variable "cloudflare_account_id" {
@@ -186,7 +197,7 @@ resource "aws_iam_role_policy" "deploy" {
           "s3:GetBucketObjectLockConfiguration"
         ],
         "Resource" : [
-          "arn:aws:s3:::${var.app_name}-production-*",
+          "arn:aws:s3:::${local.resource_name_pattern}",
           "arn:aws:s3:::sst-asset-*"
         ]
       },
@@ -198,7 +209,7 @@ resource "aws_iam_role_policy" "deploy" {
           "logs:TagResource"
         ],
         "Resource" :[
-          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.app_name}-production-*:log-stream:"
+          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.resource_name_pattern}:log-stream:"
         ]
       },
       {
@@ -226,7 +237,7 @@ resource "aws_iam_role_policy" "deploy" {
           "iam:PassRole"
         ],
         "Resource" : [
-          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.app_name}-production-*"
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.resource_name_pattern}"
         ]
       },
       {
