@@ -290,6 +290,20 @@ resource "aws_iam_role_policy" "deploy" {
           "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:function/*"
         ]
       },
+      {
+        "Sid" : "ManageACMCertificates",
+        "Effect" : "Allow",
+        "Action" : [
+          "acm:RequestCertificate",
+          "acm:DescribeCertificate",
+          "acm:DeleteCertificate",
+          "acm:AddTagsToCertificate",
+          "acm:ListTagsForCertificate"
+        ],
+        "Resource" : [
+          "arn:aws:acm:*:${data.aws_caller_identity.current.account_id}:certificate/*"
+        ]
+      },
     ]
   })
 }
