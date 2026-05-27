@@ -143,7 +143,7 @@ resource "aws_iam_role_policy" "deploy" {
           "ecr:DescribeRepositories"
         ],
         "Resource" : [
-          "arn:aws:ecr:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:repository/sst-asset"
+          "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/sst-asset"
         ]
       },
       {
@@ -155,8 +155,8 @@ resource "aws_iam_role_policy" "deploy" {
           "ssm:PutParameter"
         ],
         "Resource" : [
-          "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/sst/passphrase/*",
-          "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/sst/bootstrap"
+          "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/sst/passphrase/*",
+          "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/sst/bootstrap"
         ]
       },
       {
@@ -198,7 +198,7 @@ resource "aws_iam_role_policy" "deploy" {
           "logs:TagResource"
         ],
         "Resource" :[
-          "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.app_name}-production-*:log-stream:"
+          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.app_name}-production-*:log-stream:"
         ]
       },
       {
@@ -216,7 +216,7 @@ resource "aws_iam_role_policy" "deploy" {
           "lambda:TagResource"
         ],
         "Resource" : [
-          "arn:aws:lambda:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:function:*"
+          "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:*"
         ]
       },
       {
@@ -319,7 +319,7 @@ output "cloudflare_account_id" {
 
 output "smtp_url" {
   sensitive = true
-  value = "smtp://${urlencode(aws_iam_access_key.production.id)}:${urlencode(aws_iam_access_key.production.ses_smtp_password_v4)}@email-smtp.${data.aws_region.current.region}.amazonaws.com"
+  value = "smtp://${urlencode(aws_iam_access_key.production.id)}:${urlencode(aws_iam_access_key.production.ses_smtp_password_v4)}@email-smtp.${data.aws_region.current.name}.amazonaws.com"
 }
 
 output "aws_deploy_oidc_role" {
