@@ -11,10 +11,7 @@ variable "name" {
 }
 
 variable "writable_cloudflare_zones" {
-  type = list(object({
-    id   = string
-    name = string
-  }))
+  type = list(string)
 }
 
 variable "cloudflare_account_id" {
@@ -48,7 +45,7 @@ resource "cloudflare_account_token" "deploy" {
       ]
       resources = jsonencode({
         for zone in var.writable_cloudflare_zones:
-        "com.cloudflare.api.account.zone.${zone.id}" => "*"
+        "com.cloudflare.api.account.zone.${zone}" => "*"
       })
     }
   ]

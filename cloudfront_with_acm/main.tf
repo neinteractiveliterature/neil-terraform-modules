@@ -50,11 +50,8 @@ variable "add_security_headers_arn" {
   type = string
 }
 
-variable "cloudflare_zone" {
-  type = object({
-    id   = string
-    name = string
-  })
+variable "zone_id" {
+  type    = string
   default = null
 }
 
@@ -124,7 +121,7 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
 
 resource "cloudflare_dns_record" "cert_validation_records" {
   for_each = {
-    for dvo in(var.cloudflare_zone != null ? aws_acm_certificate.cloudfront_cert.domain_validation_options : []) : dvo.domain_name => {
+    for dvo in(var.zone_id != null ? aws_acm_certificate.cloudfront_cert.domain_validation_options : []) : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -134,7 +131,7 @@ resource "cloudflare_dns_record" "cert_validation_records" {
   name    = trimsuffix(each.value.name, ".")
   content = trimsuffix(each.value.record, ".")
   type    = each.value.type
-  zone_id = var.cloudflare_zone.id
+  zone_id = var.zone_id
   proxied = false
   ttl     = 1
 }
