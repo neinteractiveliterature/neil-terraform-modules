@@ -313,7 +313,7 @@ resource "aws_iam_role_policy" "deploy" {
 }
 
 module "cloudflare_deploy_token" {
-  source = "github.com/neinteractiveliterature/neil-terraform-modules//sst_cloudflare_deploy_token?ref=v1.0.0"
+  source = "github.com/neinteractiveliterature/neil-terraform-modules//sst_cloudflare_deploy_token?ref=main"
 
   name = "${var.app_name} deploy token"
   writable_cloudflare_zones = var.writable_cloudflare_zones
