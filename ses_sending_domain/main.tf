@@ -9,16 +9,17 @@ terraform {
   }
 }
 
-variable "cloudflare_zone" {
-  type = object({
-    id   = string
-    name = string
-  })
-  default = null
+variable "zone_id" {
+  type     = string
+  nullable = false
+}
+
+data "cloudflare_zone" "this" {
+  zone_id = var.zone_id
 }
 
 locals {
-  domain_name = trimsuffix(var.cloudflare_zone.name, ".")
+  domain_name = trimsuffix(data.cloudflare_zone.this.name, ".")
 }
 
 resource "aws_ses_domain_identity" "domain_identity" {
@@ -30,9 +31,7 @@ resource "aws_ses_domain_dkim" "domain_dkim" {
 }
 
 resource "cloudflare_dns_record" "amazonses_verification_record" {
-  count = var.cloudflare_zone != null ? 1 : 0
-
-  zone_id = var.cloudflare_zone.id
+  zone_id = var.zone_id
   name    = "_amazonses.${local.domain_name}"
   type    = "TXT"
   content = aws_ses_domain_identity.domain_identity.verification_token
@@ -40,9 +39,9 @@ resource "cloudflare_dns_record" "amazonses_verification_record" {
 }
 
 resource "cloudflare_dns_record" "amazonses_dkim_record" {
-  count = var.cloudflare_zone != null ? 3 : 0
+  count = 3
 
-  zone_id = var.cloudflare_zone.id
+  zone_id = var.zone_id
   name    = "${element(aws_ses_domain_dkim.domain_dkim.dkim_tokens, count.index)}._domainkey.${aws_ses_domain_dkim.domain_dkim.domain}"
   type    = "CNAME"
   content = "${element(aws_ses_domain_dkim.domain_dkim.dkim_tokens, count.index)}.dkim.amazonses.com"
