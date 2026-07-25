@@ -70,6 +70,8 @@ resource "aws_s3_bucket_public_access_block" "redirect_bucket" {
 resource "aws_s3_bucket_policy" "redirect_bucket" {
   bucket = aws_s3_bucket.redirect_bucket.id
 
+  depends_on = [aws_s3_bucket_public_access_block.redirect_bucket]
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
