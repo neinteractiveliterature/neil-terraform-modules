@@ -50,6 +50,24 @@ variable "add_security_headers_arn" {
   type = string
 }
 
+# Optional S3 origin. When set, origin_domain_name must be the bucket's regional domain name, and the bucket's policy must
+# let this distribution read it. The origin is then signed with this origin access control instead of being a custom
+# origin, so origin_protocol_policy is ignored.
+variable "origin_access_control_id" {
+  type    = string
+  default = null
+}
+
+variable "origin_request_policy_id" {
+  type    = string
+  default = "59781a5b-3903-41f3-afcb-af62929ccde1" # Managed-CORS-CustomOrigin
+}
+
+variable "response_headers_policy_id" {
+  type    = string
+  default = null
+}
+
 variable "zone_id" {
   type    = string
   default = null
@@ -77,11 +95,17 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
     domain_name = var.origin_domain_name
     origin_id   = var.origin_id
 
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = var.origin_protocol_policy
-      origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+    origin_access_control_id = var.origin_access_control_id
+
+    dynamic "custom_origin_config" {
+      for_each = var.origin_access_control_id == null ? [1] : []
+
+      content {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = var.origin_protocol_policy
+        origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      }
     }
   }
 
@@ -90,8 +114,9 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
   default_root_object = var.default_root_object
 
   default_cache_behavior {
-    cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
-    origin_request_policy_id = "59781a5b-3903-41f3-afcb-af62929ccde1" # Managed-CORS-CustomOrigin
+    cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    origin_request_policy_id   = var.origin_request_policy_id
+    response_headers_policy_id = var.response_headers_policy_id
 
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
